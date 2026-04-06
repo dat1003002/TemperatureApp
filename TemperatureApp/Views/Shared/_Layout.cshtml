@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TemperatureApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-black box-shadow">
+            <div class="container-fluid d-flex align-items-center">
+                <div>
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img class="logo-drb" src="~/img/avatars/logo-3.jpg" alt="logo" />
+                    </a>
+                </div>
+                <div class="mx-auto">
+                    <span class="navbar-text">HỆ THỐNG QUẢN LÝ HMI</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="navr-menu">
+        <div class="list-menu">
+            <div class="menu-room">
+                <select id="select1">
+                    <option value="banbury">BanBury</option>
+                    <option value="baotri">Bảo Trì</option>
+                    <option value="bangtai">Băng Tải</option>
+                </select>
+            </div>
+
+            <div class="menu-room" id="banbury-select">
+                <select id="select2" onchange="handleSelectChange(this, 'selectedOption2')">
+                    <option value="/Home/Index" data-url="/Home/Index">PHÒNG LẠNH 1</option>
+                    <option value="/PhongLanh2" data-url="/PhongLanh2">PHÒNG LẠNH 2</option>
+                    <option value="/Room2" data-url="/Room2">PHÒNG CÂN</option>
+                    <option value="/KhoHoaChat/Index" data-url="/KhoHoaChat/Index">KHO HÓA CHẤT (DRB2)</option>
+                    <option value="/PhongCan2/Index" data-url="/PhongCan2/Index">PHÒNG CÂN(DRB2)</option>
+                </select>
+            </div>
+
+            <div class="menu-room" id="baotri-select" style="display: none;">
+                <select id="select3" onchange="handleSelectChange(this, 'selectedOption3')">
+                    <option value="/Lohoi3" data-url="/Lohoi3">LÒ HƠI 3</option>
+                    <option value="/Lohoi4" data-url="/Lohoi4">LÒ HƠI 4</option>
+                    <option value="/Lohoi5" data-url="/Lohoi5">LÒ HƠI 5</option>
+                </select>
+            </div>
+
+            <div class="menu-room" id="bangtai-select" style="display: none;">
+                <select id="select4" onchange="handleSelectChange(this, 'selectedOption4')">
+                    <option value="/BangTai/Index" data-url="/BangTai/Index">Press #1</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const savedSelect1Value = sessionStorage.getItem("selectedOption1");
+            const currentPath = window.location.pathname;
+
+            if (!savedSelect1Value) {
+                document.getElementById("select1").value = "banbury";
+                sessionStorage.setItem("selectedOption1", "banbury");
+                toggleSelectOptions();
+                if (currentPath !== "/Home/Index") {
+                    window.location.href = "/Home/Index";
+                }
+            } else {
+                document.getElementById("select1").value = savedSelect1Value;
+                toggleSelectOptions();
+            }
+        });
+
+        function toggleSelectOptions() {
+            const select1Value = document.getElementById("select1").value;
+            document.getElementById("banbury-select").style.display = select1Value === "banbury" ? "block" : "none";
+            document.getElementById("baotri-select").style.display = select1Value === "baotri" ? "block" : "none";
+            document.getElementById("bangtai-select").style.display = select1Value === "bangtai" ? "block" : "none";
+        }
+
+        function handleSelectChange(selectElement, storageKey) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const url = selectedOption.getAttribute("data-url");
+            if (url) {
+                sessionStorage.setItem(storageKey, selectElement.value);
+                window.location.href = url;
+            }
+        }
+
+        document.getElementById("select1").addEventListener("change", function () {
+            const selectedValue = this.value;
+            sessionStorage.setItem("selectedOption1", selectedValue);
+            sessionStorage.removeItem("selectedOption2");
+            sessionStorage.removeItem("selectedOption3");
+            sessionStorage.removeItem("selectedOption4");
+            toggleSelectOptions();
+
+            if (selectedValue === "banbury") {
+                window.location.href = "/Home/Index";
+            } else if (selectedValue === "baotri") {
+                window.location.href = "/Lohoi3";
+            } else if (selectedValue === "bangtai") {
+                window.location.href = "/BangTai/Index";
+            }
+        });
+    </script>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
