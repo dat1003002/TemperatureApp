@@ -14,7 +14,10 @@
         </div>
     </div>
     <div class="excel-control">
-        <button onclick="exportToExcelBT()">Excel <img class="logo-drb" src="~/img/avatars/file-upload.png" alt="logo" /></button>
+        <button onclick="exportToExcelBT()">
+            Excel
+            <img class="logo-drb" src="~/img/avatars/file-upload.png" alt="logo" />
+        </button>
     </div>
 </div>
 
@@ -38,7 +41,11 @@
     <canvas id="bangTaiChart"></canvas>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Thư viện Chart.js + Decimation + Time Adapter -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-decimation@2"></script>
+
 <script>
     let chart;
 
@@ -61,11 +68,13 @@
     }
 
     function toggleDataset(index) {
+        if (!chart) return;
         const meta = chart.getDatasetMeta(index);
         meta.hidden = !meta.hidden;
         chart.update();
     }
 
+    // Dữ liệu từ Controller
     const labels = @Html.Raw(Json.Serialize(ViewData["Labels"]));
     const apLucDa = @Html.Raw(Json.Serialize(ViewData["ApLucDa"]));
     const apLucBanKep = @Html.Raw(Json.Serialize(ViewData["ApLucBanKep"]));
@@ -81,17 +90,21 @@
                     label: 'Áp lực đá',
                     data: apLucDa,
                     borderColor: 'rgb(54, 162, 235)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
                     fill: false,
-                    tension: 0.1
+                    tension: 0,           // Giảm từ 0.1 xuống 0 để vẽ nhanh hơn
+                    spanGaps: true,
+                    normalized: true
                 },
                 {
                     label: 'Áp lực bàn kẹp',
                     data: apLucBanKep,
                     borderColor: 'rgb(255, 159, 64)',
-                    backgroundColor: 'rgba(255, 159, 64, 0.5)',
+                    backgroundColor: 'rgba(255, 159, 64, 0.1)',
                     fill: false,
-                    tension: 0.1
+                    tension: 0,
+                    spanGaps: true,
+                    normalized: true
                 }
             ]
         };
@@ -103,16 +116,16 @@
                 maintainAspectRatio: false,
                 animation: false,
                 layout: {
-                    padding: {
-                        left: 10,
-                        right: 10,
-                        top: 10,
-                        bottom: 5
-                    }
+                    padding: { left: 10, right: 15, top: 10, bottom: 10 }
                 },
                 plugins: {
                     legend: { display: false },
-                    title: { display: false }
+                    decimation: {
+                        enabled: true,
+                        algorithm: 'lttb',     // Thuật toán giảm điểm tốt nhất
+                        samples: 1000,         // Giới hạn khoảng 1000 điểm sau khi giảm (có thể chỉnh 800-1500)
+                        threshold: 500
+                    }
                 },
                 elements: {
                     point: { radius: 0 }
@@ -136,10 +149,8 @@
                                 if (total <= 6) {
                                     return this.getLabelForValue(value);
                                 }
-
                                 const step = (total - 1) / 5;
                                 const positions = [0, Math.round(step), Math.round(2*step), Math.round(3*step), Math.round(4*step), total-1];
-
                                 if (!positions.includes(index)) return null;
 
                                 const label = this.getLabelForValue(value);
