@@ -25,27 +25,16 @@
     </div>
 }
 
-<div class="checkbox-controls" style="color: white; background: black; display:flex; justify-content: center; align-items: center;">
-    <label style="margin-right: 20px; color: rgb(54, 162, 235);">
+<div class="checkbox-controls" style="color: white; background: black; display:flex; justify-content: center; align-items: center; padding: 8px 0;">
+    <label style="margin-right: 30px; color: rgb(54, 162, 235);">
         <input type="checkbox" id="hidePole" checked onchange="toggleDataset(0)"> Áp lực đá
     </label>
-    <label style="margin-right: 20px; color: rgb(255, 159, 64);">
+    <label style="margin-right: 30px; color: rgb(255, 159, 64);">
         <input type="checkbox" id="hideTension" checked onchange="toggleDataset(1)"> Áp lực bàn kẹp
-    </label>
-    <label style="margin-right: 20px; color: rgb(255, 99, 132); display: flex; align-items: center;">
-        <span style="margin-right: 8px;">Trạng thái:</span>
-        <label class="switch">
-            <input type="checkbox" id="statusToggle" disabled
-            @(ViewData["CB1_STATUS"] != null && ((List<int>)ViewData["CB1_STATUS"]).LastOrDefault() == 1 ? "checked" : "")>
-            <span class="slider round"></span>
-        </label>
-        <span style="margin-left: 8px;">
-            @(ViewData["CB1_STATUS"] != null && ((List<int>)ViewData["CB1_STATUS"]).LastOrDefault() == 1 ? "Bật" : "Tắt")
-        </span>
     </label>
 </div>
 
-<div class="chart-container" style="height: 83vh; background: black;">
+<div class="chart-container" style="height: 79vh; background: black; margin: 0; padding: 0; position: relative;">
     <canvas id="bangTaiChart"></canvas>
 </div>
 
@@ -111,20 +100,58 @@
             type: 'line',
             data: data,
             options: {
+                maintainAspectRatio: false,
+                animation: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: 5
+                    }
+                },
                 plugins: {
                     legend: { display: false },
-                    title: {
-                        display: true,
-                        text: 'Biểu đồ thông số Băng Tải',
-                        color: 'white',
-                        font: { size: 18, weight: 'bold' }
-                    }
+                    title: { display: false }
+                },
+                elements: {
+                    point: { radius: 0 }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
                 },
                 scales: {
                     x: {
                         display: true,
-                        title: { display: true, text: 'Thời gian', color: 'white', font: { size: 14 } },
-                        ticks: { color: 'white', maxRotation: 45, minRotation: 45 },
+                        title: { display: false },
+                        ticks: {
+                            color: 'white',
+                            maxRotation: 0,
+                            minRotation: 0,
+                            autoSkip: false,
+                            padding: 8,
+                            callback: function(value, index, ticks) {
+                                const total = ticks.length;
+                                if (total <= 6) {
+                                    return this.getLabelForValue(value);
+                                }
+
+                                const step = (total - 1) / 5;
+                                const positions = [0, Math.round(step), Math.round(2*step), Math.round(3*step), Math.round(4*step), total-1];
+
+                                if (!positions.includes(index)) return null;
+
+                                const label = this.getLabelForValue(value);
+                                const parts = label.split(' ');
+                                if (parts.length >= 2) {
+                                    const datePart = parts[0];
+                                    let timePart = parts[1].substring(0, 5);
+                                    return [timePart, datePart];
+                                }
+                                return label;
+                            }
+                        },
                         grid: { color: 'rgba(255, 255, 255, 0.2)' }
                     },
                     y: {
