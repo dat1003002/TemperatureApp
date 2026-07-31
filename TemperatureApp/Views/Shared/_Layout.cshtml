@@ -6,7 +6,7 @@
     <title>TemperatureApp</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/lib/chartjs/chart.umd.min.js"></script>
 </head>
 <body>
     <header>
@@ -31,6 +31,7 @@
                     <option value="banbury">BanBury</option>
                     <option value="baotri">Bảo Trì</option>
                     <option value="bangtai">Băng Tải</option>
+                    <option value="mhe">MHE</option>
                 </select>
             </div>
 
@@ -55,6 +56,18 @@
             <div class="menu-room" id="bangtai-select" style="display: none;">
                 <select id="select4" onchange="handleSelectChange(this, 'selectedOption4')">
                     <option value="/BangTai/Index" data-url="/BangTai/Index">Press #1</option>
+                    <option value="/BangTai/Press5" data-url="/BangTai/Press5">Press #5</option>
+                    <option value="/BangTai/Press7" data-url="/BangTai/Press7">Press #7</option>
+                </select>
+            </div>
+            <div class="menu-room" id="mhe-select" style="display: none;">
+                <select id="select5" onchange="handleSelectChange(this, 'selectedOption5')">
+                    <option value="/Mhe/May1_1" data-url="/Mhe/May1_1">Máy Độ Nhớt 1.1</option>
+                    <option value="/Mhe/May1_2" data-url="/Mhe/May1_2">Máy Độ Nhớt 1.2</option>
+                    <option value="/Mhe/May2_1" data-url="/Mhe/May2_1">Máy Độ Nhớt 2.1</option>
+                    <option value="/Mhe/May2_2" data-url="/Mhe/May2_2">Máy Độ Nhớt 2.2</option>
+                    <option value="/Mhe/May3_1" data-url="/Mhe/May3_1">Máy Độ Nhớt 3.1</option>
+                    <option value="/Mhe/May3_2" data-url="/Mhe/May3_2">Máy Độ Nhớt 3.2</option>
                 </select>
             </div>
         </div>
@@ -82,13 +95,31 @@
                 document.getElementById("select1").value = savedSelect1Value;
                 toggleSelectOptions();
             }
+
+            restoreSubSelect();
         });
+
+        // Đồng bộ ô select con với trang đang mở (VD đang ở /Mhe/May1_2 thì hiển thị "Máy Độ Nhớt 1.2")
+        function restoreSubSelect() {
+            const norm = s => (s || "").toLowerCase().replace(/\/index$/i, "").replace(/\/$/, "");
+            const path = norm(window.location.pathname);
+            document.querySelectorAll(".menu-room select").forEach(function (sel) {
+                for (const opt of sel.options) {
+                    const url = opt.getAttribute("data-url");
+                    if (url && norm(url) === path) {
+                        sel.value = opt.value;
+                        break;
+                    }
+                }
+            });
+        }
 
         function toggleSelectOptions() {
             const select1Value = document.getElementById("select1").value;
             document.getElementById("banbury-select").style.display = select1Value === "banbury" ? "block" : "none";
             document.getElementById("baotri-select").style.display = select1Value === "baotri" ? "block" : "none";
             document.getElementById("bangtai-select").style.display = select1Value === "bangtai" ? "block" : "none";
+            document.getElementById("mhe-select").style.display = select1Value === "mhe" ? "block" : "none";
         }
 
         function handleSelectChange(selectElement, storageKey) {
@@ -106,6 +137,7 @@
             sessionStorage.removeItem("selectedOption2");
             sessionStorage.removeItem("selectedOption3");
             sessionStorage.removeItem("selectedOption4");
+            sessionStorage.removeItem("selectedOption5");
             toggleSelectOptions();
 
             if (selectedValue === "banbury") {
@@ -114,6 +146,8 @@
                 window.location.href = "/Lohoi3";
             } else if (selectedValue === "bangtai") {
                 window.location.href = "/BangTai/Index";
+            } else if (selectedValue === "mhe") {
+                window.location.href = "/Mhe/May1_1";
             }
         });
     </script>
@@ -121,7 +155,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

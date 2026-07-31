@@ -1,7 +1,7 @@
-﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "Băng Tải";
-    var action = ViewData["Action"] as string ?? "Index";
-    var exportAction = ViewData["ExportAction"] as string ?? "ExportToExcel";
+@{
+    ViewData["Title"] = ViewData["Title"] ?? "Máy Độ Nhớt";
+    var action = ViewData["Action"] as string ?? "May1_1";
+    var exportAction = ViewData["ExportAction"] as string ?? "Export1_1";
 }
 
 <div class="list-searchroom">
@@ -16,7 +16,7 @@
         </div>
     </div>
     <div class="excel-control">
-        <button onclick="exportToExcelBT()">
+        <button onclick="exportToExcelMHE()">
             Excel
             <img class="logo-drb" src="~/img/avatars/file-upload.png" alt="logo" />
         </button>
@@ -32,19 +32,21 @@
 
 <div class="checkbox-controls" style="color: white; background: black; display:flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 8px 0;">
     <span style="color:white; margin-right: 30px; font-weight:bold;">@ViewData["Title"]</span>
-    <label style="margin-right: 30px; color: rgb(54, 162, 235);">
-        <input type="checkbox" id="hidePole" checked onchange="toggleDataset(0)"> Áp lực đá
+    <label style="margin-right: 30px; color: rgb(75, 192, 192);">
+        <input type="checkbox" id="hideThucTe" checked onchange="toggleDataset(0)"> Thực tế
     </label>
-    <label style="margin-right: 30px; color: rgb(255, 159, 64);">
-        <input type="checkbox" id="hideTension" checked onchange="toggleDataset(1)"> Áp lực bàn kẹp
+    <label style="margin-right: 30px; color: rgb(255, 99, 132);">
+        <input type="checkbox" id="hideTieuChuan" checked onchange="toggleDataset(1)"> Tiêu chuẩn
+    </label>
+    <label style="margin-right: 30px; color: rgb(255, 206, 86);">
+        <input type="checkbox" id="hidePressure" checked onchange="toggleDataset(2)"> Áp lực
     </label>
 </div>
 
-<div class="chart-container" style="height: 79vh; background: black; margin: 0; padding: 0; position: relative;">
-    <canvas id="bangTaiChart"></canvas>
+<div class="chart-container" style="background: black; margin: 0; padding: 0;">
+    <canvas id="mheChart"></canvas>
 </div>
 
-<!-- Thư viện Chart.js + Time Adapter (Decimation đã tích hợp sẵn trong Chart.js 4) -->
 <script src="~/lib/chartjs/chart.umd.min.js"></script>
 <script src="~/lib/chartjs/chartjs-adapter-date-fns.bundle.min.js"></script>
 
@@ -57,18 +59,18 @@
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
         if (startDate && endDate) {
-            window.location.href = `/BangTai/${ACTION}?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+            window.location.href = `/Mhe/${ACTION}?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
         }
     }
 
-    function exportToExcelBT() {
+    function exportToExcelMHE() {
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
         if (!startDate || !endDate) {
             alert("Vui lòng chọn ngày bắt đầu và ngày kết thúc!");
             return;
         }
-        window.location.href = `/BangTai/${EXPORT_ACTION}?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+        window.location.href = `/Mhe/${EXPORT_ACTION}?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
     }
 
     function toggleDataset(index) {
@@ -78,33 +80,43 @@
         chart.update();
     }
 
-    // Dữ liệu từ Controller
     const labels = @Html.Raw(Json.Serialize(ViewData["Labels"]));
-    const apLucDa = @Html.Raw(Json.Serialize(ViewData["ApLucDa"]));
-    const apLucBanKep = @Html.Raw(Json.Serialize(ViewData["ApLucBanKep"]));
+    const thucTe = @Html.Raw(Json.Serialize(ViewData["ThucTe"]));
+    const tieuChuan = @Html.Raw(Json.Serialize(ViewData["TieuChuan"]));
+    const ppm = @Html.Raw(Json.Serialize(ViewData["PPM"]));
 
     if (!labels || labels.length === 0) {
-        document.getElementById('bangTaiChart').style.display = 'none';
+        document.getElementById('mheChart').style.display = 'none';
         alert("Không có dữ liệu để hiển thị biểu đồ!");
     } else {
         const data = {
             labels: labels,
             datasets: [
                 {
-                    label: 'Áp lực đá',
-                    data: apLucDa,
-                    borderColor: 'rgb(54, 162, 235)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    label: 'Thực tế',
+                    data: thucTe,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
                     fill: false,
-                    tension: 0,          
+                    tension: 0,
                     spanGaps: true,
                     normalized: true
                 },
                 {
-                    label: 'Áp lực bàn kẹp',
-                    data: apLucBanKep,
-                    borderColor: 'rgb(255, 159, 64)',
-                    backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                    label: 'Tiêu chuẩn',
+                    data: tieuChuan,
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    fill: false,
+                    tension: 0,
+                    spanGaps: true,
+                    normalized: true
+                },
+                {
+                    label: 'Áp lực',
+                    data: ppm,
+                    borderColor: 'rgb(255, 206, 86)',
+                    backgroundColor: 'rgba(255, 206, 86, 0.1)',
                     fill: false,
                     tension: 0,
                     spanGaps: true,
@@ -126,8 +138,8 @@
                     legend: { display: false },
                     decimation: {
                         enabled: true,
-                        algorithm: 'lttb',     // Thuật toán giảm điểm tốt nhất
-                        samples: 1000,         // Giới hạn khoảng 1000 điểm sau khi giảm (có thể chỉnh 800-1500)
+                        algorithm: 'lttb',
+                        samples: 1000,
                         threshold: 500
                     }
                 },
@@ -179,7 +191,7 @@
             }
         };
 
-        const ctx = document.getElementById('bangTaiChart').getContext('2d');
+        const ctx = document.getElementById('mheChart').getContext('2d');
         chart = new Chart(ctx, config);
     }
 </script>

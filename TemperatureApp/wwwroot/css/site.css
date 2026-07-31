@@ -173,3 +173,129 @@ input:checked + .slider {
     .slider.round:before {
         border-radius: 50%;
     }
+
+/* ================= FULL HEIGHT + RESPONSIVE ================= */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* Vùng nội dung chính chiếm hết chiều cao còn lại */
+.container {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+main[role="main"] {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Khung biểu đồ tự lấp đầy phần còn lại của màn hình */
+.chart-container,
+.chart-room {
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    width: 100%;
+    position: relative;
+}
+
+.chart-container canvas,
+.chart-room canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* Thanh tiêu đề / menu không co lại */
+header,
+.navr-menu,
+.list-searchroom,
+.checkbox-controls {
+    flex: 0 0 auto;
+}
+
+/* ---- Responsive: máy tính bảng ---- */
+@media (max-width: 992px) {
+    .list-menu {
+        margin-left: 3%;
+        margin-right: 3%;
+        gap: 40px;
+    }
+    .search-chart {
+        margin-left: 3%;
+        margin-right: 3%;
+        gap: 20px;
+    }
+    .navbar-brand img {
+        width: 9rem;
+    }
+    .navbar-text {
+        font-size: 20px;
+    }
+}
+
+/* ---- Responsive: điện thoại ---- */
+@media (max-width: 768px) {
+    .navr-menu {
+        height: auto;
+        padding: 6px 0;
+    }
+    .navr-menu::before {
+        display: none;
+    }
+    .list-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    .menu-room select {
+        width: 46vw;
+        max-width: 220px;
+    }
+    .list-searchroom {
+        height: auto;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 6px;
+    }
+    .search-chart {
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    .search-date input {
+        max-width: 100%;
+    }
+    .excel-control {
+        margin-right: 2%;
+    }
+    .checkbox-controls {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .checkbox-controls label {
+        margin-right: 14px !important;
+    }
+    .navbar-text {
+        font-size: 16px;
+    }
+    .navbar-brand img {
+        width: 7rem;
+    }
+}
